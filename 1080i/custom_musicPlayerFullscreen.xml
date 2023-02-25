@@ -22,7 +22,62 @@
 					<visible>!Visualisation.Enabled</visible>
 	                <include>dimensionsFullscreen</include>
 	                <aspectratio>stretch</aspectratio>
-	                <texture>$INFO[listitem.art(fanart)]</texture>
+	                <texture>
+					<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">
+  <defs>
+    <linearGradient id="gradient">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="800" height="600" fill="url(#gradient)"/>
+  <script type="text/javascript">
+    <![CDATA[
+      function getDominantColor(image) {
+        var img = document.createElement("img");
+        img.src = image;
+        var canvas = document.createElement("canvas");
+        var ctx = canvas.getContext("2d");
+        img.onload = function() {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+          var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          var colors = {};
+          for (var i = 0; i < imageData.data.length; i += 4) {
+            var r = imageData.data[i];
+            var g = imageData.data[i + 1];
+            var b = imageData.data[i + 2];
+            var rgb = r + "," + g + "," + b;
+            if (!colors[rgb]) {
+              colors[rgb] = 0;
+            }
+            colors[rgb]++;
+          }
+          var dominantColor = Object.keys(colors).reduce(function(a, b){ return colors[a] > colors[b] ? a : b });
+          var r = dominantColor.split(",")[0];
+          var g = dominantColor.split(",")[1];
+          var b = dominantColor.split(",")[2];
+          var hex = rgbToHex(r, g, b);
+          var gradient = document.getElementById("gradient");
+          gradient.setAttribute("stop-color", hex);
+        };
+      }
+
+      function rgbToHex(r, g, b) {
+        return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+      }
+
+      function componentToHex(c) {
+        var hex = c.toString(16);
+        return hex.length == 1 ? "0" + hex : hex;
+      }
+
+      getDominantColor("$INFO[MusicPlayer.Cover]");
+    ]]>
+  </script>
+</svg>
+					</texture>
 	                <fadetime>500</fadetime>
 	                <colordiffuse>77ffffff</colordiffuse>
 	            </control>
